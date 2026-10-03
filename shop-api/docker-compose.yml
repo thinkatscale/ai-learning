@@ -1,0 +1,24 @@
+services:
+  shop-api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DB_PATH: /data/shop.db
+      APP_SEED_PRODUCTS: "1000"
+      APP_SEED_SALES: "2000000"     # raise to 5000000+ if you like
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}          # from .env (never commit it)
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5.4-nano}  # check platform.openai.com for current names
+      AGENT_TOKEN: ${AGENT_TOKEN:-}                # optional: require X-Agent-Token header
+    volumes:
+      - shop-data:/data             # DB file persists across restarts
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 120s
+
+volumes:
+  shop-data:
